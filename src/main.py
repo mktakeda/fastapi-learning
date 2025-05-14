@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
@@ -21,3 +22,11 @@ def get_user(id: int):
 @app.get("/{full_path:path}")
 def get_default_msg(full_path: str):
     return {"message": f"DEFAULT PATH HIT for /{full_path}"}
+
+
+def run_server():
+    uvicorn.run("src.main:app", port=8000, reload=True)
+
+
+if __name__ == "__main__":
+    run_server()
