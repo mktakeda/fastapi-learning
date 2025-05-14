@@ -1,58 +1,37 @@
 from fastapi import APIRouter, HTTPException
 
-from src.model.user import User
-from src.utils.config import database
+from src.model.user import User as UserModel
+from src.services.user import user
 
 router = APIRouter()
 
 
 @router.get("/user/{id}")
 def get_user(id: int):
-    user = database.get(id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="NO USER FOUND")
-    return {"name": user}
+    return user.get_user(id)
 
 
 @router.get("/users")
 def get_users():
-    return {"database": database}
-
-
-@router.get("/{full_path:path}")
-def get_default_msg(full_path: str):
-    return {"message": f"DEFAULT PATH HIT for /{full_path}"}
+    return user.get_users()
 
 
 @router.post("/user")
-def add_user(payload: User):
-    if payload.id in database:
-        raise HTTPException(status_code=400, detail="ID already taken")
-    database[payload.id] = payload.name
-    print(database)
-    return {"message": "Record Inserted"}
+def add_user(payload: UserModel):
+    return user.add_user(payload.id, payload.name)
 
 
 @router.put("/user/{id}")
-def update_user(id: int, payload: User):
-    if id not in database:
-        raise HTTPException(status_code=400, detail="ID not found")
-    database[id] = payload.name
-    print(database)
-    return {"message": "Record Updated"}
+def update_user(id: int, payload: UserModel):
+    return user.update_user(id, payload.name)
 
 
 @router.delete("/user/{id}")
 def delete_user(id: int):
-    if id not in database:
-        raise HTTPException(status_code=400, detail="ID not found")
-    database.pop(id)
-    print(database)
-    return {"message": "Record Deleted"}
+    return user.delete_user(id)
 
 
 @router.delete("/users")
 def delete_users():
-    database.clear()
-    print(database)
-    return {"message": "All Records Deleted"}
+    return user.delete_users()
+
