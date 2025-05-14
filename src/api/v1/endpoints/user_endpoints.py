@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from src.model.user import User as UserModel
 from src.services.user import user
@@ -34,4 +34,3 @@ def delete_user(id: int):
 @router.delete("/users")
 def delete_users():
     return user.delete_users()
-

@@ -2,6 +2,7 @@ from fastapi import HTTPException
 
 from src.database.config import database
 
+
 class UserService:
     @staticmethod
     def get_user(id: int):
@@ -13,10 +14,10 @@ class UserService:
     @staticmethod
     def get_users():
         print(database)
-        return {"database": database }
+        return {"database": database}
 
     @staticmethod
-    def add_user(id: int,name: str):
+    def add_user(id: int, name: str):
         if id in database:
             raise HTTPException(status_code=400, detail="ID already taken")
         database[id] = name
@@ -44,5 +45,6 @@ class UserService:
         database.clear()
         print(database)
         return {"message": "All Records Deleted"}
+
 
 user = UserService()
