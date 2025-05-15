@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -10,7 +10,9 @@ class UserAddRequest(BaseModel):
 
 
 class UserFetchResponse(BaseModel):
+    id: int
     name: str
+    msg: Optional[str] = None
 
 
 class UserQueryResponse(BaseModel):
@@ -18,7 +20,7 @@ class UserQueryResponse(BaseModel):
 
 
 class UserFetchAllResponse(BaseModel):
-    database: Dict[int, str]
+    users: List[UserFetchResponse]
 
     class Config:
         extra = "forbid"

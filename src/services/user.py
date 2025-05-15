@@ -1,50 +1,48 @@
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
-from src.database.config import database
+from src.model.user import User
 
 
 class UserService:
-    @staticmethod
-    def get_user(id: int) -> dict:
-        user = database.get(id)
+    def __init__(self, db: Session):
+        self.db = db
+
+    def get_user(self, id: int) -> dict:
+        user = self.db.query(User).filter(User.id == id).first()
         if user is None:
             raise HTTPException(status_code=404, detail="NO USER FOUND")
-        return {"name": user, "msg": "GOOD"}
+        return {"id": user.id, "name": user.name}
 
-    @staticmethod
-    def get_users() -> dict:
-        print(database)
-        return {"database": database}
+    def get_users(self) -> dict:
+        users = self.db.query(User).all()
+        return {"users": [{"id": user.id, "name": user.name} for user in users]}
 
-    @staticmethod
-    def add_user(id: int, name: str) -> dict:
-        if id in database:
+    def add_user(self, id: int, name: str) -> dict:
+        if self.db.query(User).filter(User.id == id).first():
             raise HTTPException(status_code=400, detail="ID already taken")
-        database[id] = name
-        print(database)
+        new_user = User(id=id, name=name)
+        self.db.add(new_user)
+        self.db.commit()
         return {"message": "Record Inserted"}
 
-    @staticmethod
-    def update_user(id: int, name: str) -> dict:
-        if id not in database:
+    def update_user(self, id: int, name: str) -> dict:
+        user = self.db.query(User).filter(User.id == id).first()
+        if not user:
             raise HTTPException(status_code=400, detail="ID not found")
-        database[id] = name
-        print(database)
+        user.name = name
+        self.db.commit()
         return {"message": "Record Updated"}
 
-    @staticmethod
-    def delete_user(id: int) -> dict:
-        if id not in database:
+    def delete_user(self, id: int) -> dict:
+        user = self.db.query(User).filter(User.id == id).first()
+        if not user:
             raise HTTPException(status_code=400, detail="ID not found")
-        database.pop(id)
-        print(database)
+        self.db.delete(user)
+        self.db.commit()
         return {"message": "Record Deleted"}
 
-    @staticmethod
-    def delete_users() -> dict:
-        database.clear()
-        print(database)
+    def delete_users(self) -> dict:
+        self.db.query(User).delete()
+        self.db.commit()
         return {"message": "All Records Deleted"}
-
-
-user = UserService()

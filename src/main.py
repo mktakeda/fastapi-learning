@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from src.api.v1.api_router import api_router as router
 from src.database.base import Base
 from src.database.database import SessionLocal, engine
+from src.model import user
 from src.utils.helper import run_server
 
 app = FastAPI()

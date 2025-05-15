@@ -1,9 +1,10 @@
-from typing import Optional
+from sqlalchemy import Column, Integer, String
 
-from pydantic import BaseModel
+from src.database.base import Base
 
 
-class User(BaseModel):
-    id: int
-    name: str
-    discription: Optional[str] = None
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
