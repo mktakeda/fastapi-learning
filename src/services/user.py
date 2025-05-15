@@ -9,7 +9,7 @@ class UserService:
         user = database.get(id)
         if user is None:
             raise HTTPException(status_code=404, detail="NO USER FOUND")
-        return {"name": user}
+        return {"name": user, "msg": "GOOD"}
 
     @staticmethod
     def get_users() -> dict:
