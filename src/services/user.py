@@ -30,7 +30,7 @@ class UserService:
         user = self.db.query(User).filter(User.id == id).first()
         if not user:
             raise HTTPException(status_code=400, detail="ID not found")
-        user.name = name
+        user.name = name  # type: ignore
         self.db.commit()
         return {"message": "Record Updated"}
 
