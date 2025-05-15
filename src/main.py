@@ -1,4 +1,7 @@
+from collections.abc import Generator
+
 from fastapi import FastAPI
+from sqlalchemy.orm import Session
 
 from src.api.v1.api_router import api_router as router
 from src.database.base import Base
@@ -10,7 +13,7 @@ Base.metadata.create_all(bind=engine)
 
 
 # -----------------------HELPER--------------------
-def get_db():
+def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
         print("db conn created")
