@@ -1,9 +1,18 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.security import HTTPBearer
 
+from src.api.v1.endpoints.auth_endpoints import router as auth_router
 from src.api.v1.endpoints.server_endpoints import router as server_router
 from src.api.v1.endpoints.user_endpoints import router as user_router
+from src.security.auth.dependency import get_current_user
 
 # -----------------------ROUTER--------------------
 api_router = APIRouter()
-api_router.include_router(user_router, tags=["USER Methods"])
+
+api_router.include_router(auth_router, tags=["Auth Methods"])
+api_router.include_router(
+    user_router,
+    tags=["USER Methods"],
+    dependencies=[Depends(HTTPBearer()), Depends(get_current_user)],
+)
 api_router.include_router(server_router, tags=["SERVER Methods"])

@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     public_key: str
     private_key: str
     reload: bool = True
-    JWT_ALGORITHM: str = "RS256"
+    JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION_MINUTES: int = 60
 
     class Config:
