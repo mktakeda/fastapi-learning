@@ -9,7 +9,7 @@ from src.security.auth.dependency import get_current_user
 # -----------------------ROUTER--------------------
 api_router = APIRouter()
 
-api_router.include_router(auth_router, tags=["Auth Methods"])
+api_router.include_router(auth_router, tags=["AUTH Methods"])
 api_router.include_router(
     user_router,
     tags=["USER Methods"],
