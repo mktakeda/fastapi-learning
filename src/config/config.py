@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./data/test.db"
     public_key: str
     private_key: str
+    reload: bool = True
 
     class Config:
         env_file = ".env"  # Path to your .env file

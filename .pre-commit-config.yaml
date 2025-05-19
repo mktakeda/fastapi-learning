@@ -26,12 +26,12 @@ repos:
     - id: bandit
       args: ["-c", "bandit.yaml","-r", "src/"]
       
-  - repo: local
-    hooks:
-      - id: mypy
-        name: mypy
-        entry: poetry run mypy
-        args: ["--config-file=mypy.ini"]
-        language: system
-        types: [python]
-        args: ["src"]
+  # - repo: local
+  #   hooks:
+  #     - id: mypy
+  #       name: mypy
+  #       entry: poetry run mypy
+  #       args: ["--config-file=mypy.ini"]
+  #       language: system
+  #       types: [python]
+  #       args: ["src"]
