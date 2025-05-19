@@ -13,7 +13,6 @@ def get_current_user(authorization: Optional[str] = Header(None)):
 
     token = authorization.split(" ")[1]
     try:
-        print(token)
         payload = verify_jwt(token)
         return payload
     except ValueError:
