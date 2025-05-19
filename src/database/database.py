@@ -3,7 +3,9 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./data/test.db"
+from src.config.config import settings
+
+SQLALCHEMY_DATABASE_URL = settings.database_url
 os.makedirs("data", exist_ok=True)
 
 engine = create_engine(
