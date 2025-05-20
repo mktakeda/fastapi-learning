@@ -1,7 +1,8 @@
 # tests/unit/test_jwt_handler.py
 
+from jose import jwt
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from src.security.auth.jwt_handler import create_jwt, verify_jwt
 from src.config.config import settings
 
@@ -18,9 +19,8 @@ def test_create_jwt_and_verify():
 
 @pytest.mark.unit
 def test_verify_jwt_invalid_signature():
-    from jose import jwt
 
-    payload = {"user": "fake", "exp": datetime.utcnow() + timedelta(minutes=5)}
+    payload = {"user": "fake", "exp": datetime.now(timezone.utc) + timedelta(minutes=5)}
     fake_private_key = """-----BEGIN PRIVATE KEY-----
     MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCgu4+HhVwmvK7m
     xh3v8d4RjLAYpnwE2be1nsEvkhlTB/dyscFyo5OQqm1yTfLW6m4Y+oM8z1+LVLA3
@@ -57,9 +57,11 @@ def test_verify_jwt_invalid_signature():
 
 @pytest.mark.unit
 def test_verify_jwt_expired_token():
-    from jose import jwt
 
-    payload = {"user": "expired", "exp": datetime.utcnow() - timedelta(minutes=1)}
+    payload = {
+        "user": "expired",
+        "exp": datetime.now(timezone.utc) - timedelta(minutes=1),
+    }
     token = jwt.encode(payload, settings.private_key, algorithm=settings.JWT_ALGORITHM)
 
     with pytest.raises(ValueError, match="Invalid Expired token"):

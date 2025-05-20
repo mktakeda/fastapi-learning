@@ -1,57 +1,79 @@
-# # tests/integration/test_user_endpoints.py
+from fastapi.testclient import TestClient
+from src.main import app
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from src.database.base import Base
+import pytest
 
-# import pytest
-# from src.security.auth.jwt_handler import create_jwt
+# Create a test database engine and session
+SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./data/test_db.db"
+engine = create_engine(SQLALCHEMY_TEST_DATABASE_URL)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Create all tables
+Base.metadata.create_all(bind=engine)
 
-# def get_auth_headers(user="testuser"):
-#     token = create_jwt({"user": user})
-#     return {"Authorization": f"Bearer {token}"}
-
-
-# def test_add_user(test_client):
-#     response = test_client.post(
-#         "/api/v1/user",
-#         json={"id": 1000, "name": "Alice"},
-#         headers=get_auth_headers(),
-#     )
-#     assert response.status_code == 200
-#     assert response.json() == {"message": "Record Inserted"}
+client = TestClient(app)
 
 
-# def test_get_user(test_client):
-#     response = test_client.get("/api/v1/user/1", headers=get_auth_headers())
-#     assert response.status_code == 200
-#     assert response.json() == {"id": 1, "name": "Alice"}
+@pytest.fixture
+def auth_token():
+    # Simulating a login to get the JWT token
+    response = client.get("/api/v1/token/testuser")
+    assert response.status_code == 200
+    return response.json()["access_token"]
 
 
-# def test_update_user(test_client):
-#     response = test_client.put(
-#         "/api/v1/user/1",
-#         json={"id": 1, "name": "AliceUpdated"},
-#         headers=get_auth_headers(),
-#     )
-#     assert response.status_code == 200
-#     assert response.json()["message"] == "Record Updated"
+# Test Create User
+@pytest.mark.integration
+def test_create_user(auth_token):
+    response = client.post(
+        "/api/v1/user",
+        json={"id": 1, "name": "John Doe"},
+        headers={"Authorization": f"Bearer {auth_token}"},
+    )
+    assert response.status_code == 200
+    assert response.json() == {"message": "Record Inserted"}
 
 
-# def test_get_users(test_client):
-#     response = test_client.get("/api/v1/users", headers=get_auth_headers())
-#     assert response.status_code == 200
-#     assert response.json()["users"][0]["name"] == "AliceUpdated"
+# Test Get User
+@pytest.mark.integration
+def test_get_user(auth_token):
+    # Assume user with ID 1 exists
+    response = client.get(
+        "/api/v1/user/1", headers={"Authorization": f"Bearer {auth_token}"}
+    )
+    assert response.status_code == 200
+    assert response.json() == {"id": 1, "name": "John Doe", "msg": None}
 
 
-# def test_delete_user(test_client):
-#     response = test_client.delete("/api/v1/user/1", headers=get_auth_headers())
-#     assert response.status_code == 200
-#     assert response.json()["message"] == "Record Deleted"
+# Test Update User
+@pytest.mark.integration
+def test_update_user(auth_token):
+    response = client.put(
+        "/api/v1/user/1",
+        json={"id": 0, "name": "John Updated"},
+        headers={"Authorization": f"Bearer {auth_token}"},
+    )
+    assert response.status_code == 200
+    assert response.json() == {"message": "Record Updated"}
 
 
-# def test_delete_all_users(test_client):
-#     # Add a second user
-#     test_client.post(
-#       "/api/v1/user", json={"id": 2, "name": "Bob"}, headers=get_auth_headers())
-#     # Delete all
-#     response = test_client.delete("/api/v1/users", headers=get_auth_headers())
-#     assert response.status_code == 200
-#     assert response.json()["message"] == "All Records Deleted"
+# Test Delete User
+@pytest.mark.integration
+def test_delete_user(auth_token):
+    response = client.delete(
+        "/api/v1/user/1", headers={"Authorization": f"Bearer {auth_token}"}
+    )
+    assert response.status_code == 200
+    assert response.json() == {"message": "Record Deleted"}
+
+
+# Test To get Deleted User
+@pytest.mark.integration
+def test_get_deleted_user(auth_token):
+    response = client.get(
+        "/api/v1/user/1", headers={"Authorization": f"Bearer {auth_token}"}
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": "NO USER FOUND"}

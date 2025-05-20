@@ -25,6 +25,7 @@ def override_get_db():
     try:
         yield db
     finally:
+        db.rollback()
         db.close()
 
 
@@ -40,3 +41,16 @@ def test_client():
         yield c
     print("Dropping tables...")
     Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture
+def auth_token():
+    # Assuming you have a login endpoint at /auth/login
+    response = test_client.post(
+        "/auth/login", json={"username": "testuser", "password": "testpassword"}
+    )
+
+    assert response.status_code == 200  # Make sure the login is successful
+    return response.json()[
+        "access_token"
+    ]  # Assuming the token is in the 'access_token' field
