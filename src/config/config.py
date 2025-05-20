@@ -1,6 +1,7 @@
 # src/config.py
 from pathlib import Path
 
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
@@ -20,9 +21,7 @@ class Settings(BaseSettings):
     def public_key(self):
         return Path(self.public_key_path).read_text()
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = ConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
 settings = Settings()
