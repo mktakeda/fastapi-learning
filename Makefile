@@ -24,7 +24,9 @@ isort:
 	poetry run isort src/ tests/
 
 flake8:
-	poetry run flake8 src/ tests/
+	poetry run flake8 --config=.flake8 src/ tests/
 
 bandit:
 	poetry run bandit -r src/ tests/ -c bandit.yaml
+
+lint-all: black isort flake8 bandit
