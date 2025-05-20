@@ -16,14 +16,6 @@ Base.metadata.create_all(bind=engine)
 client = TestClient(app)
 
 
-@pytest.fixture
-def auth_token():
-    # Simulating a login to get the JWT token
-    response = client.get("/api/v1/token/testuser")
-    assert response.status_code == 200
-    return response.json()["access_token"]
-
-
 # Test Create User
 @pytest.mark.integration
 def test_create_user(auth_token):
