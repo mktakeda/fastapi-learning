@@ -42,8 +42,3 @@ jobs:
         run: |
           docker push ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }}
           docker push ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest
-
-  call-deploy:
-    name: Trigger Deployment Workflow
-    needs: build-and-push
-    uses: ./.github/workflows/azure-deploy.yaml
