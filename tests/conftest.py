@@ -45,10 +45,8 @@ def test_client():
 
 @pytest.fixture
 def auth_token(test_client):
-    # Assuming you have a login endpoint at /auth/login
+
     response = test_client.get("/api/v1/token/testuser")
 
-    assert response.status_code == 200  # Make sure the login is successful
-    return response.json()[
-        "access_token"
-    ]  # Assuming the token is in the 'access_token' field
+    assert response.status_code == 200
+    return response.json()["access_token"]
