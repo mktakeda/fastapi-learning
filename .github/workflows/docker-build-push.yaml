@@ -1,0 +1,44 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE: ${{ secrets.DOCKER_REPO }}
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/*/}
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          if [[ "$VERSION" == "main" ]]; then
+            VERSION="dev-${SHORT_SHA}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        run: docker build -t ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }} .
+
+      - name: Docker image tag latest
+        run: |
+          docker tag ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }} ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest
+
+      - name: Push Docker image to DockerHub
+        run: |
+          docker push ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ steps.version.outputs.version }}
+          docker push ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest
