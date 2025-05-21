@@ -1,47 +1,21 @@
-# Stage 1: Build Stage
-FROM python:3.12-slim AS build-stage
+FROM python:3.12-slim
 
-# Set environment variables to avoid pycache and .pyc files
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+WORKDIR /code
 
-# Set working directory
-WORKDIR /app
+COPY . . 
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev
-
-# Install Poetry
 RUN pip install --upgrade pip
-RUN pip install poetry
-
-# Copy the project files
-COPY pyproject.toml poetry.lock* /app/
-
-# Install dependencies from Poetry
-RUN poetry install --no-root --only main
-
-# Stage 2: Final Stage (Production Setup)
-FROM python:3.12-slim AS production-stage
-
-# Set environment variables to avoid pycache and .pyc files
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Set working directory
-WORKDIR /app
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev
-
-# Copy only the necessary files from the build stage
-COPY --from=build-stage /app /app
-
-# Copy the .env file into the container (adjust the path if needed)
-COPY .env /app/.env
+RUN pip install poetry poetry-plugin-export
+RUN poetry export --without-hashes --without dev -f requirements.txt -o requirements.txt
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+RUN pip install "uvicorn[standard]"
+RUN cat ./requirements.txt
+RUN chmod +x entrypoint.sh
 
 # Expose the port that FastAPI will run on
 EXPOSE 8000
 
-# Command to run the app
+
+ENTRYPOINT ["./entrypoint.sh"]
+
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
