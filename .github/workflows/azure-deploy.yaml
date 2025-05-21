@@ -1,19 +1,18 @@
 name: Deploy Docker Image to Azure Web App
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
   workflow_dispatch:
-  needs: build-and-push
 
 env:
   AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
   AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-  DOCKER_IMAGE: ${{ secrets.DOCKER_REPO }} 
+  DOCKER_IMAGE: ${{ secrets.DOCKER_REPO }}
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
 jobs:
   deploy:
+    name: Deploy to Azure
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +28,7 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          images: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
+          images: ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest
 
       - name: Get Web App URL
         run: |
