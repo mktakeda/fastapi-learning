@@ -41,3 +41,8 @@ jobs:
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ steps.version.outputs.version }}
         docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
+  
+  call-deploy:
+    name: Trigger Deployment Workflow
+    needs: build-and-push
+    uses: ./.github/workflows/deploy-to-azure.yml
