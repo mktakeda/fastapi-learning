@@ -7,12 +7,10 @@ on:
 env:
   AZURE_WEBAPP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
   AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-  DOCKER_IMAGE: ${{ secrets.DOCKER_REPO }}
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_IMAGE: ${{ secrets.DOCKER_REPO }} 
 
 jobs:
   deploy:
-    name: Deploy to Azure
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +26,7 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          images: ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest
+          images: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
 
       - name: Get Web App URL
         run: |
