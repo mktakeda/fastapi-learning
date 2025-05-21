@@ -1,3 +1,5 @@
+import os
+
 from fastapi import APIRouter
 
 router = APIRouter()
@@ -6,6 +8,12 @@ router = APIRouter()
 @router.get("/health")
 def get_health() -> dict:
     return {"message": "Healthy"}
+
+
+@router.get("/env")
+def get_env() -> dict:
+    env_vars = dict(os.environ)
+    return env_vars
 
 
 @router.get("/{full_path:path}")
