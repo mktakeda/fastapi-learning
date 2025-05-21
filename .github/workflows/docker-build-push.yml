@@ -1,13 +1,14 @@
-name: Build and Push Docker Image
+# .github/workflows/docker-build-psh.yaml
+name: Docker Build and Push
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+  workflow_call: 
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      docker_tag: ${{ steps.version.outputs.version }}  # pass version/tag
 
     steps:
     - name: Checkout code
@@ -29,15 +30,12 @@ jobs:
         fi
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    - name: Build Docker image
+    - name: Build and Tag Docker Image
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ steps.version.outputs.version }} .
-    
-    - name: Docker image tag latest
-      run: |
         docker tag ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ steps.version.outputs.version }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
-    
-    - name: Push Docker image
+
+    - name: Push Docker Image
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ steps.version.outputs.version }}
         docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
