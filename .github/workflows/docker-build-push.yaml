@@ -46,4 +46,4 @@ jobs:
   call-deploy:
     name: Trigger Deployment Workflow
     needs: build-and-push
-    uses: ./.github/workflows/deploy-to-azure.yml
+    uses: ./.github/workflows/azure-deploy.yaml
