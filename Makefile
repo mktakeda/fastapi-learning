@@ -1,6 +1,6 @@
 # Makefile
 
-.PHONY: code-coverage server test unit-test integration-test black isort flake8 bandit
+.PHONY: code-coverage server test unit-test integration-test black isort flake8 bandit requirements
 
 code-coverage:
 	poetry run pytest --cov=src tests/
@@ -30,3 +30,6 @@ bandit:
 	poetry run bandit -r src/ tests/ -c bandit.yaml
 
 lint-all: black isort flake8 bandit
+
+requirements:
+	poetry export --without-hashes --without dev -f requirements.txt -o requirements.txt

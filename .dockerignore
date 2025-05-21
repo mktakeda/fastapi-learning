@@ -1,0 +1,10 @@
+tests/
+.pre-commit-config.yaml
+.git
+.gitignore
+.dockerignore
+LICENSE.md
+README.md
+.env.example
+.flake8
+mypy.ini
