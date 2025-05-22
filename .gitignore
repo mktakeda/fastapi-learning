@@ -175,3 +175,6 @@ cython_debug/
 
 # Encryption keys
 *.pem
+
+# secret file
+.secrets
