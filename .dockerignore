@@ -17,3 +17,5 @@ pytest.ini
 bandit.yaml
 secrets
 Makefile
+.secrets.*
+.secrets

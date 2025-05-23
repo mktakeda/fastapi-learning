@@ -1,5 +1,5 @@
-name: Build, Push Docker Image, and Deploy to Azure
-# CICD PIPELINE
+name: CICD PIPELINE
+# CICD PIPELINE : Build, Push Docker Image, and Deploy to Azure
 on:
   push:
     branches:
