@@ -153,7 +153,7 @@
           "useBackend": false
         }
       ],
-      "title": "New panel",
+      "title": "HTTP Requests & CPU Usage",
       "type": "timeseries"
     }
   ],
