@@ -1,6 +1,5 @@
 # app/logger.py
 
-import logging
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -29,14 +28,14 @@ logger.add(
 )
 
 
-class InterceptHandler(logging.Handler):
-    def emit(self, record):
-        level = (
-            logger.level(record.levelname).name
-            if record.levelname in logger._core.levels
-            else record.levelno
-        )
-        logger.log(level, record.getMessage())
+# class InterceptHandler(logging.Handler):
+#     def emit(self, record):
+#         level = (
+#             logger.level(record.levelname).name
+#             if record.levelname in logger._core.levels
+#             else record.levelno
+#         )
+#         logger.log(level, record.getMessage())
 
 
-logging.basicConfig(handlers=[InterceptHandler()], level=logging.INFO)
+# logging.basicConfig(handlers=[InterceptHandler()], level=logging.INFO)
