@@ -5,6 +5,7 @@ from src.api.v1.endpoints.auth_endpoints import router as auth_router
 from src.api.v1.endpoints.server_endpoints import router as server_router
 from src.api.v1.endpoints.user_endpoints import router as user_router
 from src.security.auth.dependency import get_current_user
+from src.utils.logger import logger
 
 # -----------------------ROUTER--------------------
 api_router = APIRouter()
@@ -16,3 +17,5 @@ api_router.include_router(
     dependencies=[Depends(HTTPBearer()), Depends(get_current_user)],
 )
 api_router.include_router(server_router, tags=["SERVER Methods"])
+
+logger.info("🚀 API routers configured")

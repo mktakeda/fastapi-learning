@@ -1,8 +1,9 @@
-# src/config.py
 from pathlib import Path
 
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
+
+from src.utils.logger import logger
 
 
 class Settings(BaseSettings):
@@ -31,3 +32,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+logger.info("⚙️ Application settings loaded")

@@ -9,22 +9,26 @@ from src.schema.user import (
     UserQueryResponse,
 )
 from src.services.user import UserService
+from src.utils.logger import logger
 
 router = APIRouter()
 
 
 @router.get("/user/{id}", response_model=UserFetchResponse)
 def get_user(id: int, db: Session = Depends(get_db)) -> dict:
+    logger.info(f"Fetching user with id={id}")
     return UserService(db).get_user(id)
 
 
 @router.get("/users", response_model=UserFetchAllResponse)
 def get_users(db: Session = Depends(get_db)) -> dict:
+    logger.info("Fetching all users")
     return UserService(db).get_users()
 
 
 @router.post("/user", response_model=UserQueryResponse)
 def add_user(payload: UserAddRequest, db: Session = Depends(get_db)) -> dict:
+    logger.info(f"Adding user with id={payload.id}, name={payload.name}")
     return UserService(db).add_user(payload.id, payload.name)
 
 
@@ -32,14 +36,17 @@ def add_user(payload: UserAddRequest, db: Session = Depends(get_db)) -> dict:
 def update_user(
     id: int, payload: UserAddRequest, db: Session = Depends(get_db)
 ) -> dict:
+    logger.info(f"Updating user with id={id} to name={payload.name}")
     return UserService(db).update_user(id, payload.name)
 
 
 @router.delete("/user/{id}", response_model=UserQueryResponse)
 def delete_user(id: int, db: Session = Depends(get_db)) -> dict:
+    logger.info(f"Deleting user with id={id}")
     return UserService(db).delete_user(id)
 
 
 @router.delete("/users", response_model=UserQueryResponse)
 def delete_users(db: Session = Depends(get_db)) -> dict:
+    logger.info("Deleting all users")
     return UserService(db).delete_users()

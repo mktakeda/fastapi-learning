@@ -14,31 +14,37 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 from src.config.config import settings
+from src.utils.logger import logger
 
 
 def setup_tracer(app: FastAPI, log_correlation: bool = True) -> None:
-
     MODE = settings.JAEGER_MODE
     OTLP_GRPC_ENDPOINT = settings.JAEGER_OTLP_GRPC_ENDPOINT
     OTLP_HTTP_ENDPOINT = settings.JAEGER_OTLP_HTTP_ENDPOINT
     SERVICE = settings.JAEGER_SERVICE_NAME
 
-    # Define service resource
+    logger.info("🔧 Setting up OpenTelemetry tracer")
+
     resource = Resource(attributes={SERVICE_NAME: SERVICE})
     tracer_provider = TracerProvider(resource=resource)
     trace.set_tracer_provider(tracer_provider)
 
-    if MODE == "otlp-http":
-        exporter = OTLPSpanExporterHTTP(endpoint=OTLP_HTTP_ENDPOINT)
-    else:
-        exporter = OTLPSpanExporterGRPC(endpoint=OTLP_GRPC_ENDPOINT, insecure=True)
+    try:
+        if MODE == "otlp-http":
+            exporter = OTLPSpanExporterHTTP(endpoint=OTLP_HTTP_ENDPOINT)
+        else:
+            exporter = OTLPSpanExporterGRPC(endpoint=OTLP_GRPC_ENDPOINT, insecure=True)
 
-    span_processor = BatchSpanProcessor(exporter)
-    tracer_provider.add_span_processor(span_processor)
+        span_processor = BatchSpanProcessor(exporter)
+        tracer_provider.add_span_processor(span_processor)
 
-    if log_correlation:
-        LoggingInstrumentor().instrument(set_logging_format=True)
+        if log_correlation:
+            LoggingInstrumentor().instrument(set_logging_format=True)
 
-    if FastAPIInstrumentor().is_instrumented_by_opentelemetry:
-        return
-    FastAPIInstrumentor.instrument_app(app, tracer_provider=tracer_provider)
+        if not FastAPIInstrumentor().is_instrumented_by_opentelemetry:
+            FastAPIInstrumentor.instrument_app(app, tracer_provider=tracer_provider)
+
+        logger.success(f"✅ Tracer initialized in {MODE.upper()} mode for {SERVICE}")
+
+    except Exception as e:
+        logger.exception(f"❌ Failed to set up tracer: {e}")
