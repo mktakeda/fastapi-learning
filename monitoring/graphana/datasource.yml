@@ -1,0 +1,11 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: cen12hmllvk00d #SAME AS OUR EXPORTED DASHBOARD
+    access: proxy 
+    orgId: 1
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
