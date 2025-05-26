@@ -1,0 +1,44 @@
+# src/utils/tracing.py
+from fastapi import FastAPI
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import (
+    OTLPSpanExporter as OTLPSpanExporterGRPC,
+)
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
+    OTLPSpanExporter as OTLPSpanExporterHTTP,
+)
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+from src.config.config import settings
+
+
+def setup_tracer(app: FastAPI, log_correlation: bool = True) -> None:
+
+    MODE = settings.JAEGER_MODE
+    OTLP_GRPC_ENDPOINT = settings.JAEGER_OTLP_GRPC_ENDPOINT
+    OTLP_HTTP_ENDPOINT = settings.JAEGER_OTLP_HTTP_ENDPOINT
+    SERVICE = settings.JAEGER_SERVICE_NAME
+
+    # Define service resource
+    resource = Resource(attributes={SERVICE_NAME: SERVICE})
+    tracer_provider = TracerProvider(resource=resource)
+    trace.set_tracer_provider(tracer_provider)
+
+    if MODE == "otlp-http":
+        exporter = OTLPSpanExporterHTTP(endpoint=OTLP_HTTP_ENDPOINT)
+    else:
+        exporter = OTLPSpanExporterGRPC(endpoint=OTLP_GRPC_ENDPOINT, insecure=True)
+
+    span_processor = BatchSpanProcessor(exporter)
+    tracer_provider.add_span_processor(span_processor)
+
+    if log_correlation:
+        LoggingInstrumentor().instrument(set_logging_format=True)
+
+    if FastAPIInstrumentor().is_instrumented_by_opentelemetry:
+        return
+    FastAPIInstrumentor.instrument_app(app, tracer_provider=tracer_provider)

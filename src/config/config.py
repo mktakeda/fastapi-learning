@@ -12,6 +12,12 @@ class Settings(BaseSettings):
     reload: bool = True
     JWT_ALGORITHM: str = "RS256"
     JWT_EXPIRATION_MINUTES: int = 60
+    JAEGER_HOST: str = "localhost"
+    JAEGER_PORT: int = 6831
+    JAEGER_OTLP_GRPC_ENDPOINT: str = "localhost:4317"
+    JAEGER_OTLP_HTTP_ENDPOINT: str = "http://localhost:4318/v1/traces"
+    JAEGER_MODE: str = "otlp-grpc"
+    JAEGER_SERVICE_NAME: str = "fastapi-app"
 
     @property
     def private_key(self):

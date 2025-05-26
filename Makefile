@@ -1,12 +1,15 @@
 # Makefile
 
-.PHONY: code-coverage server test unit-test integration-test black isort flake8 bandit requirements
+.PHONY: code-coverage server prod-server test unit-test integration-test black isort flake8 bandit requirements jaeger-start
 
 code-coverage:
 	poetry run pytest --cov=src tests/
 
 server:
 	poetry run server
+
+prod-server:
+	poetry run gunicorn src.main:app -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 -w 4 --access-logfile -
 
 test:
 	poetry run pytest tests/
@@ -33,3 +36,9 @@ lint-all: black isort flake8 bandit
 
 requirements:
 	poetry export --without-hashes --without dev -f requirements.txt -o requirements.txt
+
+jaeger-start:
+	docker run -d --name jaeger -e COLLECTOR_OTLP_ENABLED=true -p 16686:16686  -p 4317:4317 -p 4318:4318 jaegertracing/all-in-one:1.50  
+
+jaeger-stop:
+	docker stop jaeger && docker rm jaeger
