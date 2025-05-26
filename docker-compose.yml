@@ -19,6 +19,7 @@ services:
       - fastapi_net
     volumes:
       - .:/app
+      - app-logs:/var/log/app
 
   jaeger:
     image: jaegertracing/all-in-one:1.50
@@ -44,6 +45,7 @@ services:
       - app
   grafana:
     image: grafana/grafana
+    container_name: grafana
     ports:
       - "3000:3000"
     volumes:
@@ -60,9 +62,41 @@ services:
     networks:
       - fastapi_net
 
+  loki:
+    image: grafana/loki:2.8.2
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+
+    command: -config.file=/etc/loki/local-config.yaml
+    depends_on:
+      - grafana
+    networks:
+      - fastapi_net
+    user: root
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/promtail.yml
+      - app-logs:/var/log/app            # Named volume for app logs
+      - promtail-positions:/tmp          # Named volume for positions.yaml, mount whole dir for flexibility
+    command: -config.file=/etc/promtail/promtail.yml
+    depends_on:
+      - grafana
+    networks:
+      - fastapi_net
 
 volumes:
   grafana-storage:
+  loki-data:
+  promtail-positions:
+  app-logs:
 
 networks:
   fastapi_net:

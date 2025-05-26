@@ -1,0 +1,32 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml   # Mounted from your logs dir, to keep track of where Promtail left off
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Collect logs from your logs folder (*.log)
+  - job_name: "app-log-files"
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: fastapi-log-files
+          __path__: /var/log/app/*.log    # Mounted logs folder inside Promtail container
+
+  # Collect container stdout logs (optional, from Docker daemon)
+  - job_name: "docker-logs"
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+    relabel_configs:
+      - source_labels: [__meta_docker_container_name]
+        regex: "/(.+)"
+        target_label: container
+      - source_labels: [__meta_docker_container_log_stream]
+        target_label: stream
+      - source_labels: [__meta_docker_container_name]
+        target_label: job
